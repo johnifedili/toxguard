@@ -1,12 +1,15 @@
-# ToxGuard Evidence Contract — v0.1
+# ToxGuard Evidence Contract — v0.1.1
 
 **Document status:** LOCKED
-**Version:** 0.1
+**Version:** 0.1.1
 **Lock date:** 2026-06-06
+**Previous version:** 0.1 (locked 2026-06-06, same date; superseded by this version on the same day after framing clarification)
 **Authors:** ToxGuard project lead (toxicologist, MS Toxicology, RPh)
 **Repository:** `research/toxguard/`
 **Path:** `docs/evidence_contract_v0.1.md`
-**Successor:** v0.2 will resolve the seven open questions enumerated in §9.
+**Successor:** v0.2 will resolve the eight open questions enumerated in §9.
+
+**Changes from v0.1:** §1.5 expanded with explicit scientific-positioning subsection; §9.8 added (paired knowledge probe deferred question); §10 changelog entry. No changes to the locked spine (§1.1), endpoints (§5), evidence dimensions (§3), scenario classes (§2), authorization rules (§4), failure taxonomy (§6), scoring signatures (§7), or controller specification (§8).
 
 > This document is the control specification for the ToxGuard benchmark, scoring system, and Evidence-Gated Hazard Authorization Controller. All downstream artifacts — scenario schema, scoring signatures, controller implementation, pre-registration, manuscript methods — are derivative of this contract. Any change to this document after lock requires an explicit version bump and a written rationale.
 
@@ -49,6 +52,20 @@ The unifying thesis is that in safety-critical domains, large language model fai
 ### §1.5 Public-health relevance framing
 
 The hazard-versus-risk distinction is the most-cited toxicological communication failure in public-facing discourse. IARC Group 1 classification is routinely conflated with individual or population-level risk in lay media, in patient-facing clinical encounters, and now potentially in large-language-model output consumed by both populations. ToxGuard provides the first systematic measurement of whether and how frequently large language models reproduce this collapse.
+
+### §1.6 Scientific positioning
+
+ToxGuard is designed to evaluate whether toxicological commitment failures arise from deficiencies in toxicological knowledge, deficiencies in evidence-state calibration, or failures of commitment regulation despite possession of relevant toxicological knowledge.
+
+This tripartite framing distinguishes ToxGuard from three adjacent categories of evaluation:
+
+- **Knowledge benchmarks** (e.g., factual recall of NOAEL, IARC classifications, regulatory threshold frameworks) measure whether models possess toxicological information. ToxGuard does not. The presence or absence of knowledge is a confounder, not the construct of interest.
+- **Calibration benchmarks** measure whether model-expressed confidence tracks evidence strength. ToxGuard partially overlaps here (the T5 failure mode — Evidence Escalation — touches calibration), but the construct of interest is the downstream commitment, not the calibration itself.
+- **Reasoning benchmarks** measure whether models can chain inferences correctly under explicit rules. ToxGuard tests the inverse: whether models *refuse to chain* when the chain is unauthorized by the evidence available.
+
+The v0.1.1 lock acknowledges that the strongest possible ToxGuard finding — that models possess relevant toxicological knowledge yet fail to regulate commitment appropriately — requires experimental design beyond the baseline ToxBench scenarios specified in v0.1. Specifically, it requires paired knowledge probes (see §9.8) that measure factual recall on the same toxicological content that the scenarios then test under commitment-regulation conditions. v0.1.1 does not commit to this design; it preserves the option and locks the rubric structure such that paired probes can be added in v0.2 without restructuring the contract.
+
+The defensible v0.1 claim, prior to paired-probe data, is descriptive: *models exhibit hazard-versus-risk conflation and premature toxicological commitment at characterizable rates.* The aspirational v0.2+ claim, contingent on paired-probe data, is explanatory: *models possess relevant toxicological knowledge yet fail to regulate commitment appropriately.* The contract is designed so the descriptive claim can be made without the explanatory claim being prematurely asserted, and so the explanatory claim becomes available if and when paired-probe evidence supports it.
 
 ---
 
@@ -632,14 +649,35 @@ These questions are intentionally deferred. v0.2 resolves them prior to any scen
 *Question:* OSF Registries vs. AsPredicted vs. journal-tied pre-registration (e.g., Toxicological Sciences Registered Report track if available).
 *Provisional position:* OSF Registries for compatibility with OncoGuard's prior registration; revisit if a Registered Report track at a target journal becomes available.
 
+### §9.8 Paired knowledge probes
+*Question:* Should each ToxBench scenario be paired with a knowledge probe item testing factual recall of the relevant threshold framework, regulatory classification, and evidence type, to enable the "knows facts but fails to regulate commitment" analysis?
+
+*Rationale:* The strongest defensible ToxGuard claim — that commitment failure occurs even when models possess relevant toxicological knowledge — requires evidence that the model knew the relevant content at the time of the scenario. Without paired probes, critics can attribute observed commitment failures to knowledge gaps rather than to commitment-regulation failure. Paired probes foreclose that critique by establishing knowledge presence as a precondition for the commitment-regulation interpretation.
+
+*Provisional design (subject to v0.2 finalization):* For each scenario, author 2–4 probe items testing recall of (a) the relevant threshold metric and its numeric value, (b) the regulatory classification of the index agent where applicable, and (c) the evidence-type hierarchy relevant to the scenario class (e.g., human > concordant animal+mechanism > animal alone > mechanism alone for carcinogenicity). Probe items are administered in a separate session from the scenario items to prevent within-session priming. Models passing probe items but failing scenario items provide evidence for the commitment-regulation interpretation; models failing both provide evidence for knowledge-gap interpretation; the joint distribution is the analytic target.
+
+*Provisional position:* Adopt paired probes in v0.2. The v0.1 contract is rubric-compatible with this addition — probe items can be authored without changing the scenario schema, scoring signatures, or endpoints. Scenario authoring at scale should not begin until v0.2 locks the probe design, because probe authoring and scenario authoring share regulatory-source research and should be batched.
+
 ---
 
 ## §10. Versioning and Change Control
 
-- v0.1 (this document) is locked at the date in the header.
+- v0.1.1 (this document) is locked at the date in the header.
 - Any change to §1.1 (locked spine), §2 (scenario classes), §3 (evidence dimensions), §4 (authorization rules), §5 (endpoints), or §6 (failure taxonomy) requires a major version bump (v0.2, v0.3, ...).
-- Tightening of operational definitions in §7 (scoring signatures) or §8 (controller) may occur as minor version (v0.1.1, v0.1.2) with a documented change log.
+- Tightening of operational definitions in §7 (scoring signatures) or §8 (controller), or framing clarifications in §1 or §9, may occur as minor version (v0.1.1, v0.1.2) with a documented change log.
 - All version changes are tagged in the repository.
+
+### §10.1 Changelog
+
+**v0.1.1 — 2026-06-06**
+- Added §1.6 (Scientific positioning) clarifying ToxGuard's relationship to knowledge, calibration, and reasoning benchmarks; articulating the descriptive (v0.1-supportable) vs. explanatory (v0.2+-contingent) claim distinction.
+- Added §9.8 (Paired knowledge probes) as the eighth deferred question, with provisional design for testing knowledge presence as a precondition for the commitment-regulation interpretation.
+- Updated §10 to reflect that framing clarifications in §1 and §9 are permitted as minor version bumps.
+- Updated §9 enumeration count from seven to eight in the document header.
+- No changes to §1.1 (locked spine), §2 (scenario classes), §3 (evidence dimensions), §4 (authorization rules), §5 (endpoints), §6 (failure taxonomy), §7 (scoring signatures), or §8 (controller specification).
+
+**v0.1 — 2026-06-06**
+- Initial locked contract. Five scenario classes (C/T/K/E/O), five evidence dimensions (E/P/C/S/T), four conclusion types (H/R/D/N), PTHCR primary endpoint, HVRC-R co-primary endpoint with four subtypes (HVRC-I/P/M/A), T1–T9 failure taxonomy with T6 as umbrella construct, EGHAC controller specified, seven deferred questions.
 
 ---
 
